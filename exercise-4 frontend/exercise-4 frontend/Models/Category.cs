@@ -7,7 +7,7 @@
         public Category(string x)
         {
             this.Name = x;
-            this.ID = Guid.NewGuid(); ;
+            this.ID = Guid.NewGuid() ;
         }
         public Category() { }
 

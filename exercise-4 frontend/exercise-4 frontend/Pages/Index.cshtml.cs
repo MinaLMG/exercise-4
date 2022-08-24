@@ -70,25 +70,6 @@ namespace exercise_4_frontend.Pages
             }
         }
 
-        public async Task<IActionResult> OnPostCreateCategory()
-        {
-            Category toAdd = new Category(Name);
-            var temp = JsonSerializer.Serialize(toAdd);
-            var res = await HttpClient.PostAsync(Configuration["BaseUrl"] + "categories", new StringContent(temp, Encoding.UTF8, "application/json"));
-            if ((int)res.StatusCode == 200)
-            {
-                //ReqResult = "success";
-                //Msg = "your category has been added successfully";
-                return Redirect("/index?ReqResult=success&Msg=your category has been added successfully");
-            }
-            else
-            {
-                //ReqResult = "failure";
-                //Msg = "something went wrong with your request .. check your data and try again";
-                return Redirect("/index?ReqResult=failure&Msg=something went wrong with your request .. check your data and try again&name=" + Name);
-            }
-        }
-
         public async Task<IActionResult> OnPostUpdateCategory()
         {
             Category toEdit = new Category(Name);

@@ -88,12 +88,14 @@ public class Data
         string recipesString = File.ReadAllText(this.RecipesLoc);
         this.Recipes = JsonSerializer.Deserialize<List<Recipe>>(recipesString);
     }
-    public void AddCategory(Category to_add)
+    public Category AddCategory(Category to_add)
     {
+        to_add.ID = Guid.NewGuid();
         this.Categories.Add(to_add);
         this.CategoriesMap[to_add.Name] = to_add.ID;
         this.CategoriesNamesMap[to_add.ID] = to_add.Name;
         this.WriteInFolder(JsonSerializer.Serialize(this.Categories, this.Options), this.CategoriesLoc);
+        return to_add;
     }
     public Category EditCategory(Guid id, Category newCategory)
     {
@@ -159,8 +161,8 @@ public class Pages
         switch (action)
         {
             case "add":
-                this.Data.AddCategory(c);
-                return Results.Json(new { c.Name, c.ID });
+                Category added = this.Data.AddCategory(c);
+                return Results.Json(new { c.Name, added.ID });
 
             case "edit":
                 Category toEdit = Data.EditCategory(id, c);

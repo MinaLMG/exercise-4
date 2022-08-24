@@ -26,341 +26,7 @@
 		</div>
 	</div>
 </div>
-@**** categories page *****@
-<div class="page-body categories" x-show="page==`categories`">
-	<div class="page-body-elements">
-		<h1> Categories</h1>
-		@if (Model.CategoriesList.Count > 0)
-		{
-			<table class="table page-table">
-				<thead>
-					<tr>
-						<th scope="col" style="width: 55px;">#</th>
-						<th scope="col" class="name">Name</th>
-						<th scope="col" style="width: 130px;">Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					<template x-for="(category,index) in categories">
-						<tr>
-							<td x-text="index+1"></td>
-							<td x-text="category.name"></td>
-							<td class="flex">
-								<!-- Button trigger modal -->
-								<button type="button" class="btn btn-primary" data-bs-toggle="modal"
-									x-bind:data-bs-target="'#editModal'+category.id"
-									x-bind:id="'#editButton'+category.id">
-									<img class="action" src="~/Images/edit.png" alt="edit" />
-								</button>
-
-
-								<!-- Modal -->
-								<div class="modal fade" x-bind:id="'editModal'+category.id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-									<div class="modal-dialog">
-										<div class="modal-content">
-											<form method="post" asp-page-handler="UpdateCategory" class="needs-validation" novalidate>
-												<div class="modal-header">
-													<h5 class="modal-title">
-														Editing a Category
-													</h5>
-													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-												</div>
-												<div class="modal-body edit">
-													<label x-bind:for="'#name'+category.id" class="form-label">Name</label>
-													<input type="text" class="form-control" x-bind:id="'#name'+category.id" name="name"
-													   x-bind:value="'#editModal'+category.id"
-													   @*TO DO*@
-													   @*x-bind:value
-													   value=@(Model.ID!=new Guid() && Model.ID==category.ID && Model.Open=="edit"?Model.Name:category.Name)*@
-													   required>
-													<input type="hidden" class="form-control" name="id" x-bind:value="category.id" required>
-												</div>
-												<div class="modal-footer">
-													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-													<button type="submit" class="btn btn-primary" x-bind:onclick="'return validateEditCategoryData('+category.id+')'">Save changes</button>
-												</div>
-
-											</form>
-										</div>
-									</div>
-								</div>
-								<!-- Button trigger modal -->
-								<button type="button" class="btn btn-danger" data-bs-toggle="modal" x-bind:data-bs-target="'#deleteModal'+category.id"
-									x-bind:id="'deleteButton'+category.id">
-									<img class="action" src="~/Images/bin.png" alt="delete" />
-								</button>
-
-								<!-- Modal -->
-								<div class="modal fade" x-bind:id="'deleteModal'+category.id"
-								 tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-									<div class="modal-dialog">
-										<div class="modal-content">
-											<form method="post" asp-page-handler="DeleteCategory" class="needs-validation" novalidate>
-												<input type="hidden" class="form-control" name="id" x-bind:value="category.id">
-												<div class="modal-header">
-													<h5 class="modal-title">
-														Deleting a Category
-													</h5>
-													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-												</div>
-												<div class="modal-body">
-													Are you sure you want to delete the category <span class="delete-category" x-text="category.name"></span> ?
-												</div>
-												<div class="modal-footer">
-													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-													<button type="submit" class="btn btn-danger">Yes, Delete</button>
-												</div>
-											</form>
-										</div>
-									</div>
-								</div>
-							</td>
-						</tr>
-
-					</template>
-				</tbody>
-			</table>
-		}
-		else
-		{
-			<h1>No</h1>
-		}
-
-	</div>
-	<div class="page-body-actions">
-		<h4 class="text-center">New Category </h4>
-		<form method="post" onsubmit="createCategory" class="needs-validation" novalidate>
-			<div class="mb-3">
-				<label for="name" class="form-label white">Name</label>
-				<input type="text" class="form-control" id="name" name="name" required value=@((Model.ID==new Guid() && !string.IsNullOrEmpty(@Model.Name))? Model.Name:"")>
-			</div>
-			<button type="submit" class="btn btn-primary" onclick="return validateAddCategoryData();">Add Category</button>
-		</form>
-	</div>
-</div>
-<div class="modals" x-show="page==`recipes`">
-	<!-- Adding Modal -->
-	<div class="modal fade" id=@("addModal") tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<form method="post" asp-page-handler="CreateRecipe" class="needs-validation" novalidate>
-					<div class="modal-header">
-						<h5 class="modal-title">Adding a new Recipe</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<div class="modal-body ">
-						<label for=@("name") class="form-label ">Title</label>
-						<input type="text" class="form-control mb-3" id="title" name="title" required value=@((Model.Title!="" && Model.ID==new Guid())?Model.Title:"")>
-						<div class="valid-feedback">
-							Looks good!
-						</div>
-						<input type="hidden" class="form-control" name="id">
-						<div class="form-floating mb-3">
-							<textarea class="form-control mb-3" placeholder="Leave a comment here" id=@("floatingTextarea")
-									  style="height: 100px" name="ingredients" required>
-								@((Model.Ingredients != "" && Model.ID == new Guid())?Model.Ingredients:"")
-								</textarea>
-							<div class="valid-feedback">
-								Looks good!
-							</div>
-							<label for=@("floatingTextarea")>
-								ingredients<span class="weaker">(separated by new lines)</span>
-							</label>
-						</div>
-						<div class="form-floating mb-3">
-							<textarea class="form-control" placeholder="Leave a comment here" id=@("floatingTextarea2")
-									  style="height: 100px" name="instructions" required>
-								@((Model.Instructions != "" && Model.ID == new Guid())?Model.Instructions :"")
-								</textarea>
-							<div class="valid-feedback">
-								Looks good!
-							</div>
-							<label for=@("floatingTextarea2")>
-								instructions<span class="weaker">(separated by new lines)</span>
-							</label>
-						</div>
-						<div class="form-floating mb-3">
-							<div class="btn-group mb-3" role="group" aria-label="Basic checkbox toggle button group">
-								
-								<template x-for="category in categories">
-									<input name="categories"
-										   type="checkbox" class="btn-check" x-bind:id="'btncheckedit'+category.id"
-										   x-bind:value="category.id"
-										   autocomplete="off" />
-										   @*To DO*@
-										   @*@(Model.Open=="add"?(Model.Categories.Any(c=> c== category.ID) ?"checked":""):"")>*@
-									<label class="btn btn-outline-danger"
-										   x-bind:for="'btncheckedit'+category.ID" x-text="category.name"> 
-										
-									</label>
-								</template>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						<button type="submit" class="btn btn-primary" onclick="return validateAddRecipeData();">Add</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-	@if (Model.Recipes.Count > 0)
-	{
-		@foreach (var recipe in Model.Recipes)
-		{
-			<!--showing Modal -->
-			<div class="modal fade" id=@("showModal"+recipe.ID) tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title">@recipe.Title</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						</div>
-						<div class="modal-body show">
-							<div class="label">
-								ingredients
-							</div>
-							<div class="ingredients mb-3">
-								@foreach (var ingredient in recipe.Ingredients)
-								{
-									<div>@ingredient</div>
-								}
-							</div>
-							<div class="label">
-								instructions
-							</div>
-							<div class="instructions mb-3">
-								<ol>
-									@foreach (var instruction in recipe.Instructions)
-									{
-										<li> <div>@instruction</div></li>
-									}
-								</ol>
-							</div>
-							<div class="label">
-								categories
-							</div>
-							<div class="categories mb-3">
-								<template x-for="category in categories">
-									<div class="category" x-text="categoriesNamesMap[category.id]"></div>
-								</template>
-								
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- Editing Modal -->
-			<div class="modal fade" id=@("editModal"+recipe.ID) tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<form method="post" asp-page-handler="UpdateRecipe" class="needs-validation" novalidate>
-							<div class="modal-header">
-								<h5 class="modal-title">Editing a Recipe</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-							</div>
-							<div class="modal-body edit">
-								<label for=@("name"+recipe.ID) class="form-label ">Title</label>
-								<input type="text" class="form-control mb-3" id=@("title"+recipe.ID) name="title"
-							   value="@(Model.Open=="edit"?Model.Title:recipe.Title)" required>
-								<input type="hidden" class="form-control" name="id" value="@recipe.ID">
-								<div class="form-floating mb-3">
-									<textarea class="form-control mb-3" placeholder="Leave a comment here" id=@("floatingTextarea"+recipe.ID)
-									  style="height: 100px" name="ingredients" required>
-										@{
-											var index2 = 0;
-											if (Model.Open == "edit")
-												@Model.Ingredients
-											else
-											{
-												@foreach (var ingredient in recipe.Ingredients)
-												{
-													x = index2 > 0 ? "\r\n" : "";
-													x += ingredient;
-													@x
-													index2++;
-												}
-
-											}
-										}
-																																																																																																																																																																																																		</textarea>
-									<label for=@("floatingTextarea"+recipe.ID)>
-										ingredients<span class="weaker">(separated by new lines)</span>
-									</label>
-								</div>
-								<div class="form-floating mb-3">
-									<textarea class="form-control" placeholder="Leave a comment here" id=@("floatingTextarea2"+recipe.ID) style="height: 100px" name="instructions" required>
-										@{
-											index2 = 0;
-											if (Model.Open == "edit")
-												@Model.Instructions
-											else
-												@foreach (var instruction in recipe.Instructions)
-												{
-													x = index2 > 0 ? "\r\n" : "";
-													x += instruction;
-													@x
-													index2++;
-												}
-										}																																																																																			</textarea>
-									<label for=@("floatingTextarea2"+recipe.ID)>
-										instructions<span class="weaker">(separated by new lines)</span>
-									</label>
-								</div>
-								<div class="form-floating mb-3">
-									<div class="btn-group mb-3" role="group" aria-label="Basic checkbox toggle button group">
-										@foreach (var category in Model.CategoriesList)
-										{
-											x = "";
-											<input name="categories"
-									   type="checkbox" class="btn-check" id=@("btncheckedit"+recipe.ID+category.ID)
-									   value=@category.ID
-									   autocomplete="off"
-									   @(Model.Open=="edit"?(Model.Categories.Any(c=> c== category.ID) ?"checked":""):(recipe.Categories.Any(c=> c== category.ID) ?"checked":""))>
-											<label class="btn btn-outline-danger"
-									   for=@("btncheckedit"+recipe.ID+category.ID)>
-												@category.Name
-											</label>
-										}
-									</div>
-								</div>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-								<button type="submit" class="btn btn-primary" onclick="return validateEditRecipeData(`@recipe.ID`)">Save changes</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-			<!--Delete Modal -->
-			<div class="modal fade" id=@("deleteModal"+recipe.ID)
-		 tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<form method="post" asp-page-handler="DeleteRecipe">
-							<input type="hidden" class="form-control" name="id" value="@recipe.ID">
-							<div class="modal-header">
-								<h5 class="modal-title">Deleting a Recipe</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-							</div>
-							<div class="modal-body">
-								Are you sure you want to delete the recipe <span class="delete-category">@recipe.Title</span> ?
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-								<button type="submit" class="btn btn-danger">Yes, Delete</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-
-
-		}
-	}
-</div>
+@*recipes page*@
 <div class="page-body recipes" x-show="page==`recipes`">
 	<div class="page-body-elements">
 		<div class="recipes-header-container">
@@ -407,14 +73,371 @@
 		</div>
 	</div>
 </div>
+@**** categories page *****@
+<div class="page-body categories" x-show="page==`categories`">
+	<div class="page-body-elements">
+		<h1> Categories</h1>
+		<template x-if="categoriesList.length > 0">
+			<table class="table page-table">
+				<thead>
+					<tr>
+						<th scope="col" style="width: 55px;">#</th>
+						<th scope="col" class="name">Name</th>
+						<th scope="col" style="width: 130px;">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<template x-for="(category,index) in categoriesList">
+						<tr>
+							<td x-text="index+1"></td>
+							<td x-text="category.name"></td>
+							<td class="flex">
+								<!-- Button trigger modal -->
+								<button type="button" class="btn btn-primary" data-bs-toggle="modal"
+										x-bind:data-bs-target="'#editModal'+category.id"
+										x-bind:id="'#editButton'+category.id">
+									<img class="action" src="~/Images/edit.png" alt="edit" />
+								</button>
+
+
+								<!-- Modal -->
+								<div class="modal fade" x-bind:id="'editModal'+category.id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+									<div class="modal-dialog">
+										<div class="modal-content">
+											<form method="post" asp-page-handler="UpdateCategory" class="needs-validation" novalidate>
+												<div class="modal-header">
+													<h5 class="modal-title">
+														Editing a Category
+													</h5>
+													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+												</div>
+												<div class="modal-body edit">
+													<label x-bind:for="'#name'+category.id" class="form-label">Name</label>
+													<input type="text" class="form-control" x-bind:id="'#name'+category.id" name="name"
+														   x-bind:value="category.name"
+														   required>
+													<input type="hidden" class="form-control" name="id" x-bind:value="category.id" required>
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+													<button type="submit" class="btn btn-primary" x-bind:onclick="'return validateEditCategoryData('+category.id+')'">Save changes</button>
+												</div>
+
+											</form>
+										</div>
+									</div>
+								</div>
+								<!-- Button trigger modal -->
+								<button type="button" class="btn btn-danger" data-bs-toggle="modal" x-bind:data-bs-target="'#deleteModal'+category.id"
+										x-bind:id="'deleteButton'+category.id">
+									<img class="action" src="~/Images/bin.png" alt="delete" />
+								</button>
+
+								<!-- Modal -->
+								<div class="modal fade" x-bind:id="'deleteModal'+category.id"
+									 tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+									<div class="modal-dialog">
+										<div class="modal-content">
+											<form class="needs-validation" novalidate>
+												<input type="hidden" class="form-control" name="id" x-bind:value="category.id">
+												<div class="modal-header">
+													<h5 class="modal-title">
+														Deleting a Category
+													</h5>
+													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+												</div>
+												<div class="modal-body">
+													Are you sure you want to delete the category <span class="delete-category" x-text="category.name"></span> ?
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+													<button type="button" class="btn btn-danger" x-on:click="deleteCategory(categoriesList,categoriesNamesMap,category.id,index)">Yes, Delete</button>
+												</div>
+											</form>
+										</div>
+									</div>
+								</div>
+							</td>
+						</tr>
+
+					</template>
+				</tbody>
+			</table>
+		</template>
+	</div>
+	<div class="page-body-actions">
+		<h4 class="text-center">New Category </h4>
+		<form class="needs-validation" novalidate>
+			<div class="mb-3">
+				<label for="name" class="form-label white">Name</label>
+				<input type="text" class="form-control" id="name" name="name" required
+			</div>
+			<button type="button" class="btn btn-primary" x-on:click="createCategory(categoriesList,categoriesNamesMap);">Add Category</button>
+		</form>
+	</div>
+</div>
+@**** recipes page *****@
+<div class="modals" x-show="page==`recipes`">
+	<!-- Adding Modal -->
+	<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form method="post" asp-page-handler="CreateRecipe" class="needs-validation" novalidate>
+					<div class="modal-header">
+						<h5 class="modal-title">Adding a new Recipe</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body ">
+						<label for="name" class="form-label ">Title</label>
+						<input type="text" class="form-control mb-3" id="title" name="title" required
+							   @*To Do*@
+							   @*value=@((Model.Title!="" && Model.ID==new Guid())?Model.Title:"")>*@
+						<div class="valid-feedback">
+							Looks good!
+						</div>
+						<input type="hidden" class="form-control" name="id">
+						<div class="form-floating mb-3">
+							<textarea class="form-control mb-3" placeholder="Leave a comment here" id="floatingTextarea"
+									  style="height: 100px" name="ingredients" required>
+								@*To Do*@
+								@*@((Model.Ingredients != "" && Model.ID == new Guid())?Model.Ingredients:"")*@
+								</textarea>
+							<div class="valid-feedback">
+								Looks good!
+							</div>
+							<label for="floatingTextarea">
+								ingredients<span class="weaker">(separated by new lines)</span>
+							</label>
+						</div>
+						<div class="form-floating mb-3">
+							<textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
+									  style="height: 100px" name="instructions" required>
+								@*To Do*@
+								@*@((Model.Instructions != "" && Model.ID == new Guid())?Model.Instructions :"")*@
+								</textarea>
+							<div class="valid-feedback">
+								Looks good!
+							</div>
+							<label for="floatingTextarea2">
+								instructions<span class="weaker">(separated by new lines)</span>
+							</label>
+						</div>
+						<div class="form-floating mb-3">
+							<div class="btn-group mb-3" role="group" aria-label="Basic checkbox toggle button group">
+
+								<template x-for="category in categoriesList">
+									<input name="categories"
+										   type="checkbox" class="btn-check" x-bind:id="'btncheckedit'+category.id"
+										   x-bind:value="category.id"
+										   autocomplete="off" />
+									@*To DO*@
+									@*@(Model.Open=="add"?(Model.Categories.Any(c=> c== category.ID) ?"checked":""):"")>*@
+									<label class="btn btn-outline-danger"
+										   x-bind:for="'btncheckedit'+category.ID" x-text="category.name">
+
+									</label>
+								</template>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-primary" onclick="return validateAddRecipeData();">Add</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<template x-if="recipes.length>0">
+		@foreach (var recipe in Model.Recipes)
+		{
+			<!--showing Modal -->
+			<div class="modal fade" id=@("showModal"+recipe.ID) tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">@recipe.Title</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body show">
+							<div class="label">
+								ingredients
+							</div>
+							<div class="ingredients mb-3">
+								@foreach (var ingredient in recipe.Ingredients)
+								{
+									<div>@ingredient</div>
+								}
+							</div>
+							<div class="label">
+								instructions
+							</div>
+							<div class="instructions mb-3">
+								<ol>
+									@foreach (var instruction in recipe.Instructions)
+									{
+										<li> <div>@instruction</div></li>
+									}
+								</ol>
+							</div>
+							<div class="label">
+								categories
+							</div>
+							<div class="categories mb-3">
+								<template x-for="category in categoriesList">
+									<div class="category" x-text="categoriesNamesMap[category.id]"></div>
+								</template>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Editing Modal -->
+			<div class="modal fade" id=@("editModal"+recipe.ID) tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<form method="post" asp-page-handler="UpdateRecipe" class="needs-validation" novalidate>
+							<div class="modal-header">
+								<h5 class="modal-title">Editing a Recipe</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body edit">
+								<label for=@("name"+recipe.ID) class="form-label ">Title</label>
+								<input type="text" class="form-control mb-3" id=@("title"+recipe.ID) name="title"
+								   value="@(Model.Open=="edit"?Model.Title:recipe.Title)" required>
+								<input type="hidden" class="form-control" name="id" value="@recipe.ID">
+								<div class="form-floating mb-3">
+									<textarea class="form-control mb-3" placeholder="Leave a comment here" id=@("floatingTextarea"+recipe.ID)
+										  style="height: 100px" name="ingredients" required>
+										@{
+											var index2 = 0;
+											if (Model.Open == "edit")
+												@Model.Ingredients
+											else
+											{
+												@foreach (var ingredient in recipe.Ingredients)
+												{
+													x = index2 > 0 ? "\r\n" : "";
+													x += ingredient;
+													@x
+													index2++;
+												}
+
+											}
+										}
+																																																																																																																																																																																																																										</textarea>
+									<label for=@("floatingTextarea"+recipe.ID)>
+										ingredients<span class="weaker">(separated by new lines)</span>
+									</label>
+								</div>
+								<div class="form-floating mb-3">
+									<textarea class="form-control" placeholder="Leave a comment here" id=@("floatingTextarea2"+recipe.ID) style="height: 100px" name="instructions" required>
+										@{
+											index2 = 0;
+											if (Model.Open == "edit")
+												@Model.Instructions
+											else
+												@foreach (var instruction in recipe.Instructions)
+												{
+													x = index2 > 0 ? "\r\n" : "";
+													x += instruction;
+													@x
+													index2++;
+												}
+										}																																																																																			</textarea>
+									<label for=@("floatingTextarea2"+recipe.ID)>
+										instructions<span class="weaker">(separated by new lines)</span>
+									</label>
+								</div>
+								<div class="form-floating mb-3">
+									<div class="btn-group mb-3" role="group" aria-label="Basic checkbox toggle button group">
+										@foreach (var category in Model.CategoriesList)
+										{
+											x = "";
+											<input name="categories"
+										   type="checkbox" class="btn-check" id=@("btncheckedit"+recipe.ID+category.ID)
+										   value=@category.ID
+										   autocomplete="off"
+										   @(Model.Open=="edit"?(Model.Categories.Any(c=> c== category.ID) ?"checked":""):(recipe.Categories.Any(c=> c== category.ID) ?"checked":""))>
+											<label class="btn btn-outline-danger"
+										   for=@("btncheckedit"+recipe.ID+category.ID)>
+												@category.Name
+											</label>
+										}
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+								<button type="submit" class="btn btn-primary" onclick="return validateEditRecipeData(`@recipe.ID`)">Save changes</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!--Delete Modal -->
+			<div class="modal fade" id=@("deleteModal"+recipe.ID)
+			 tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<form method="post" asp-page-handler="DeleteRecipe">
+							<input type="hidden" class="form-control" name="id" value="@recipe.ID">
+							<div class="modal-header">
+								<h5 class="modal-title">Deleting a Recipe</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								Are you sure you want to delete the recipe <span class="delete-category">@recipe.Title</span> ?
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+								<button type="submit" class="btn btn-danger">Yes, Delete</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+
+		}
+	</template>
+</div>
 <script type="text/javascript">
-	function validateAddCategoryData() {
+	async function createCategory(categories, map) {
 		if ($("#name").val().trim() == "") {
 			swal.fire({ title: "Category Name", text: "Please enter category name .. it can't be empty !", "icon": "info" });
-			return false;
 		} else {
-			return true;
+			let name = document.getElementById("name").value;
+			try {
+				await postData('@(Model.Configuration["BaseUrl"] + "categories")', { name: name })
+					.then((data) => {
+						categories.push(data);
+						map[data.id] = data.name;
+						successAlert("your category has been added successfully")
+
+					});
+			} catch (err) {
+				failureAlert("something went wrong with your request .. check your data and try again");
+			}
 		}
+		return false;
+	}
+	async function deleteCategory(categories, map, id, index) {
+
+		let name = document.getElementById("name").value;
+		try {
+			await deleteData('@(Model.Configuration["BaseUrl"] + "categories/" )' + id)
+				.then((data) => {
+					categories.splice(index, 1); // 2nd parameter means remove one item only
+					delete map[data.id];
+					successAlert("the category has been deleted successfully")
+					$('#deleteModal' + id).modal('hide');
+				});
+		} catch (err) {
+			failureAlert("something went wrong with your request .. you can retry after some seconds");
+		}
+		return false;
 	}
 	function validateEditCategoryData(id) {
 		if ($("#name" + id).val().trim() == "") {
@@ -435,6 +458,15 @@
 	if (`@(Model.ID!=new Guid())` && `@Model.Open` == "delete") {
 		var el = document.getElementById(`@("deleteButton"+ Model.ID)`);
 		setTimeout(() => { el.click(); }, 10);
+	}
+	function successAlert(msg) {
+		swal.fire({ title: "Success", text: msg, "icon": "success" });
+	}
+	function failureAlert(msg) {
+		swal.fire({ title: "Failure", text: msg, "icon": "error" });
+	}
+	function infoAlert(title, msg) {
+		swal.fire({ title: title, text: msg, "icon": "info" });
 	}
 </script>
 <script type="text/javascript">
@@ -488,10 +520,42 @@
 	}
 </script>
 <script type="text/javascript">
+	async function postData(url = '', data = {}) {
+		// Default options are marked with *
+		const response = await fetch(url, {
+			method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			mode: 'cors', // no-cors, *cors, same-origin
+			cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+			credentials: 'same-origin', // include, *same-origin, omit
+			headers: {
+				'Content-Type': 'application/json'
+				// 'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			redirect: 'follow', // manual, *follow, error
+			referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+			body: JSON.stringify(data) // body data type must match "Content-Type" header
+		});
+		return response.json(); // parses JSON response into native JavaScript objects
+	}
+	async function deleteData(url = '', data = {}) {
+		// Default options are marked with *
+		const response = await fetch(url, {
+			method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
+			mode: 'cors', // no-cors, *cors, same-origin
+			cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+			credentials: 'same-origin', // include, *same-origin, omit
+			headers: {
+				'Content-Type': 'application/json'
+				// 'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			redirect: 'follow', // manual, *follow, error
+			referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+			body: JSON.stringify(data) // body data type must match "Content-Type" header
+		});
+		return response.json(); // parses JSON response into native JavaScript objects
+	}
 
-	@*Category toAdd = new Category(Name);
-		var temp = JsonSerializer.Serialize(toAdd);
-		var res = await HttpClient.PostAsync(Configuration["BaseUrl"] + "categories", new StringContent(temp, Encoding.UTF8, "application/json"));
+	@* await fetch(@(Model.Configuration["BaseUrl"] + "categories"), );
 		if ((int)res.StatusCode == 200)
 		{
 		//ReqResult = "success";
