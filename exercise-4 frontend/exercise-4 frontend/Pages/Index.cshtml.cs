@@ -69,45 +69,6 @@ namespace exercise_4_frontend.Pages
                 this.categoriesNamesMap[CategoriesList[i].ID] = CategoriesList[i].Name;
             }
         }
-
-        public async Task<IActionResult> OnPostUpdateCategory()
-        {
-            Category toEdit = new Category(Name);
-            toEdit.ID = ID;
-            var temp = JsonSerializer.Serialize(toEdit);
-            var res = await HttpClient.PutAsync(Configuration["BaseUrl"] + "categories/" + ID, new StringContent(temp, Encoding.UTF8, "application/json"));
-            if ((int)res.StatusCode == 200)
-            {
-                //ReqResult = "success";
-                //Msg = "the category has been updated successfully";
-                return Redirect("/index?ReqResult=success&Msg=the category has been updated successfully");
-            }
-            else
-            {
-                //ReqResult = "failure";
-                //Msg = "something went wrong with your request .. review your data and try again";
-                //Open = "edit";
-                return Redirect("/index?ReqResult=failure&Msg=something went wrong with your request .. review your data and try again&name=" + Name + "&id=" + ID + "&open=edit");
-            }
-        }
-
-        public async Task<IActionResult> OnPostDeleteCategory()
-        {
-            var res = await HttpClient.DeleteAsync(Configuration["BaseUrl"] + "categories/" + ID);
-            if ((int)res.StatusCode == 200)
-            {
-                //ReqResult = "success";
-                //Msg = "the category has been deleted successfully";
-                return Redirect("/index?ReqResult=success&Msg=the category has been deleted successfully");
-            }
-            else
-            {
-                //ReqResult = "failure";
-                //Msg = "something went wrong with your request .. you can retry after some seconds";
-                return Redirect("/index?ReqResult=failure&Msg=something went wrong with your request .. you can retry after some seconds&id=" + ID + "&open=delete");
-            }
-        }
-
         public async Task<IActionResult> OnPostCreateRecipe()
         {
             Recipe toAdd = new Recipe("", new(), new(), new());

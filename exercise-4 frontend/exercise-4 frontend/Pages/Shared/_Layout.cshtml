@@ -21,7 +21,7 @@
 </head>
 <body>
 	<div class="page-background"
-		 x-data="{page:`categories`,recipes :[],categoriesList:[],categoriesNamesMap:{}}"  x-init="categoriesList = await (await fetch('@(@Model.Configuration["BaseUrl"]+"categories")')).json();recipes = await (await fetch('@(@Model.Configuration["BaseUrl"]+"recipes")')).json();categoriesNamesMap=mapNames(categoriesList)" >
+		 x-data="{page:`recipes`,recipes :[],categoriesList:[],categoriesNamesMap:{}}"  x-init="categoriesList = await (await fetch('@(@Model.Configuration["BaseUrl"]+"categories")')).json();recipes = await (await fetch('@(@Model.Configuration["BaseUrl"]+"recipes")')).json();categoriesNamesMap=mapNames(categoriesList)" >
 		<header>
 			<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
 				<div class="container">

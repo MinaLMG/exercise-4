@@ -223,6 +223,7 @@ public class Pages
         switch (action)
         {
             case "add":
+                r.ID = Guid.NewGuid();
                 Data.AddRecipe(r);
                 return Results.Json(new { r.Title, r.Ingredients, r.Instructions, r.Categories, r.ID });
 

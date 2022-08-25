@@ -26,53 +26,6 @@
 		</div>
 	</div>
 </div>
-@*recipes page*@
-<div class="page-body recipes" x-show="page==`recipes`">
-	<div class="page-body-elements">
-		<div class="recipes-header-container">
-			<h1> Recipes </h1>
-			<!-- Button trigger modal -->
-			<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target=@("#addModal") id=@("#addButton")>
-				<img class="action" src="~/Images/add.png" alt="add" />
-			</button>
-
-		</div>
-		<div class="recipe-cards">
-			@if (Model.Recipes.Count > 0)
-			{
-				@foreach (var recipe in Model.Recipes)
-				{
-					<div class="recipe-card">
-
-						<div class="title">
-							@recipe.Title
-						</div>
-						<div class="buttons">
-							<!-- Button trigger modal -->
-							<button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-							data-bs-target=@("#showModal"+recipe.ID)>
-								<img class="action" src="~/Images/view.png" alt="view" />
-							</button>
-							<!-- Button trigger modal -->
-							<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target=@("#editModal"+recipe.ID)
-							id=@("editButton"+recipe.ID){
-							x="editButton">
-								<img class="action" src="~/Images/edit.png" alt="edit" />
-							</button>
-
-
-							<!-- Button trigger modal -->
-							<button type="button" class="btn btn-danger" data-bs-toggle="modal"
-							data-bs-target=@("#deleteModal"+recipe.ID) id=@("deleteButton"+recipe.ID)>
-								<img class="action" src="~/Images/bin.png" alt="del" />
-							</button>
-						</div>
-					</div>
-				}
-			}
-		</div>
-	</div>
-</div>
 @**** categories page *****@
 <div class="page-body categories" x-show="page==`categories`">
 	<div class="page-body-elements">
@@ -104,7 +57,7 @@
 								<div class="modal fade" x-bind:id="'editModal'+category.id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 									<div class="modal-dialog">
 										<div class="modal-content">
-											<form method="post" asp-page-handler="UpdateCategory" class="needs-validation" novalidate>
+											<form class="needs-validation" novalidate>
 												<div class="modal-header">
 													<h5 class="modal-title">
 														Editing a Category
@@ -113,14 +66,14 @@
 												</div>
 												<div class="modal-body edit">
 													<label x-bind:for="'#name'+category.id" class="form-label">Name</label>
-													<input type="text" class="form-control" x-bind:id="'#name'+category.id" name="name"
+													<input type="text" class="form-control" x-bind:id="'name'+category.id" name="name"
 														   x-bind:value="category.name"
 														   required>
 													<input type="hidden" class="form-control" name="id" x-bind:value="category.id" required>
 												</div>
 												<div class="modal-footer">
 													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-													<button type="submit" class="btn btn-primary" x-bind:onclick="'return validateEditCategoryData('+category.id+')'">Save changes</button>
+													<button type="button" class="btn btn-primary" x-on:click=" updateCategory(categoriesList,categoriesNamesMap,category.id,index)">Save changes</button>
 												</div>
 
 											</form>
@@ -170,7 +123,7 @@
 		<form class="needs-validation" novalidate>
 			<div class="mb-3">
 				<label for="name" class="form-label white">Name</label>
-				<input type="text" class="form-control" id="name" name="name" required
+				<input type="text" class="form-control" id="name" name="name" required />
 			</div>
 			<button type="button" class="btn btn-primary" x-on:click="createCategory(categoriesList,categoriesNamesMap);">Add Category</button>
 		</form>
@@ -182,22 +135,22 @@
 	<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
-				<form method="post" asp-page-handler="CreateRecipe" class="needs-validation" novalidate>
+				<form class="needs-validation" novalidate>
 					<div class="modal-header">
 						<h5 class="modal-title">Adding a new Recipe</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body ">
 						<label for="name" class="form-label ">Title</label>
-						<input type="text" class="form-control mb-3" id="title" name="title" required
-							   @*To Do*@
-							   @*value=@((Model.Title!="" && Model.ID==new Guid())?Model.Title:"")>*@
+						<input type="text" class="form-control mb-3" id="recipeName" name="title" required />
+						@*To Do*@
+						@*value=@((Model.Title!="" && Model.ID==new Guid())?Model.Title:"")>*@
 						<div class="valid-feedback">
 							Looks good!
 						</div>
 						<input type="hidden" class="form-control" name="id">
 						<div class="form-floating mb-3">
-							<textarea class="form-control mb-3" placeholder="Leave a comment here" id="floatingTextarea"
+							<textarea class="form-control mb-3" placeholder="Leave a comment here" id="ingredients"
 									  style="height: 100px" name="ingredients" required>
 								@*To Do*@
 								@*@((Model.Ingredients != "" && Model.ID == new Guid())?Model.Ingredients:"")*@
@@ -205,12 +158,12 @@
 							<div class="valid-feedback">
 								Looks good!
 							</div>
-							<label for="floatingTextarea">
+							<label for="ingredients">
 								ingredients<span class="weaker">(separated by new lines)</span>
 							</label>
 						</div>
 						<div class="form-floating mb-3">
-							<textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
+							<textarea class="form-control" placeholder="Leave a comment here" id="instructions"
 									  style="height: 100px" name="instructions" required>
 								@*To Do*@
 								@*@((Model.Instructions != "" && Model.ID == new Guid())?Model.Instructions :"")*@
@@ -218,31 +171,29 @@
 							<div class="valid-feedback">
 								Looks good!
 							</div>
-							<label for="floatingTextarea2">
+							<label for="instructions">
 								instructions<span class="weaker">(separated by new lines)</span>
 							</label>
 						</div>
 						<div class="form-floating mb-3">
 							<div class="btn-group mb-3" role="group" aria-label="Basic checkbox toggle button group">
-
 								<template x-for="category in categoriesList">
-									<input name="categories"
-										   type="checkbox" class="btn-check" x-bind:id="'btncheckedit'+category.id"
-										   x-bind:value="category.id"
-										   autocomplete="off" />
-									@*To DO*@
-									@*@(Model.Open=="add"?(Model.Categories.Any(c=> c== category.ID) ?"checked":""):"")>*@
-									<label class="btn btn-outline-danger"
-										   x-bind:for="'btncheckedit'+category.ID" x-text="category.name">
-
-									</label>
+									<section>
+										<input name="categories"
+											   type="checkbox" class="btn-check" x-bind:id="'btncheckedit'+category.id"
+											   x-bind:value="category.id"
+											   autocomplete="off" />
+										<label class="btn btn-outline-danger"
+											   x-bind:for="'btncheckedit'+category.id" x-text="category.name">
+										</label>
+									</section>
 								</template>
 							</div>
 						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						<button type="submit" class="btn btn-primary" onclick="return validateAddRecipeData();">Add</button>
+						<button type="button" class="btn btn-primary" x-on:click="createRecipe(recipes,categoriesList);">Add</button>
 					</div>
 				</form>
 			</div>
@@ -326,7 +277,7 @@
 
 											}
 										}
-																																																																																																																																																																																																																										</textarea>
+																																																																																																																																																																																																																																								</textarea>
 									<label for=@("floatingTextarea"+recipe.ID)>
 										ingredients<span class="weaker">(separated by new lines)</span>
 									</label>
@@ -403,9 +354,52 @@
 		}
 	</template>
 </div>
+@*recipes page*@
+<div class="page-body recipes" x-show="page==`recipes`">
+	<div class="page-body-elements">
+		<div class="recipes-header-container">
+			<h1> Recipes </h1>
+			<!-- Button trigger modal -->
+			<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target=@("#addModal") id=@("#addButton")>
+				<img class="action" src="~/Images/add.png" alt="add" />
+			</button>
+
+		</div>
+		<div class="recipe-cards">
+			@*<template x-if="recipes.length > 0">*@
+			<template x-for="recipe in recipes">
+				<div class="recipe-card">
+
+					<div class="title" x-text="recipe.title">
+					</div>
+					<div class="buttons">
+						<!-- Button trigger modal -->
+						<button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+								x-bind:data-bs-target="'#showModal'+recipe.id">
+							<img class="action" src="~/Images/view.png" alt="view" />
+						</button>
+						<!-- Button trigger modal -->
+						<button type="button" class="btn btn-primary" data-bs-toggle="modal" x-bind:data-bs-target="'#editModal'+recipe.ID"
+								x-bind:id="'editButton'+recipe.ID">
+							<img class="action" src="~/Images/edit.png" alt="edit" />
+						</button>
+
+
+						<!-- Button trigger modal -->
+						<button type="button" class="btn btn-danger" data-bs-toggle="modal"
+								x-bind:data-bs-target="'#deleteModal'+recipe.ID" x-bind:id="'deleteButton'+recipe.ID">
+							<img class="action" src="~/Images/bin.png" alt="del" />
+						</button>
+					</div>
+				</div>
+			</template>
+			@*</template>*@
+		</div>
+	</div>
+</div>
 <script type="text/javascript">
 	async function createCategory(categories, map) {
-		if ($("#name").val().trim() == "") {
+		if ($("#name").value.trim() == "") {
 			swal.fire({ title: "Category Name", text: "Please enter category name .. it can't be empty !", "icon": "info" });
 		} else {
 			let name = document.getElementById("name").value;
@@ -421,7 +415,6 @@
 				failureAlert("something went wrong with your request .. check your data and try again");
 			}
 		}
-		return false;
 	}
 	async function deleteCategory(categories, map, id, index) {
 
@@ -439,12 +432,23 @@
 		}
 		return false;
 	}
-	function validateEditCategoryData(id) {
+	async function updateCategory(categories, map, id, index) {
 		if ($("#name" + id).val().trim() == "") {
 			swal.fire({ title: "Category Name", text: "Please enter category name .. it can't be empty !", "icon": "info" });
 			return false;
 		} else {
-			return true;
+			let name = document.getElementById("name" + id).value;
+			try {
+				await updateData('@(Model.Configuration["BaseUrl"] + "categories/" )' + id, { name: name })
+					.then((data) => {
+						categories[index] = data;
+						map[data.id] = data.name
+						successAlert("the category has been updated successfully")
+						$('#editModal' + id).modal('hide');
+					});
+			} catch (err) {
+				failureAlert("something went wrong with your request .. review your data and try again");
+			}
 		}
 	}
 	if (`@Model.ReqResult` == "success")
@@ -470,20 +474,45 @@
 	}
 </script>
 <script type="text/javascript">
-	function validateAddRecipeData() {
-		if ($("#title").val().trim() == "") {
+	async function createRecipe(recipes, categories) {
+		if ($("#recipeName").val().trim() == "") {
 			swal.fire({ title: "Recipe Tiltle", text: "Please enter recipe title .. it can't be empty !", "icon": "info" });
-			return false;
+			return;
 		}
-		if ($("#floatingTextarea").val().trim() == "") {
+		if ($("#ingredients").val().trim() == "") {
 			swal.fire({ title: "Recipe Ingredients", text: "Please enter recipe ingredients .. they can't be empty !", "icon": "info" });
-			return false;
+			return;
 		}
-		if ($("#floatingTextarea2").val().trim() == "") {
+		if ($("#instructions").val().trim() == "") {
 			swal.fire({ title: "Recipe Instructions", text: "Please enter recipe instructions .. they can't be empty !", "icon": "info" });
-			return false;
+			return;
 		} else {
-			return true;
+			let title = document.getElementById("recipeName").value.trim();
+			let instructions = document.getElementById("instructions").value.trim().split("\n");
+			let ingredients = document.getElementById("recipeName").value.trim().split("\n");
+			let categoriesToSend = [];
+			for (let i = 0; i < categories.length; i++) {
+				if (document.getElementById("btncheckedit" + categories[i].id).checked) {
+					categoriesToSend.push(categories[i].id);
+					$('#addModal').modal('hide');
+
+				}
+			}
+			try {
+				await postData('@(Model.Configuration["BaseUrl"] + "recipes")', {
+					title: title,
+					ingredients: ingredients,
+					instructions: instructions,
+					categories: categoriesToSend
+				})
+					.then((data) => {
+						recipes.push(data);
+						successAlert("your recipe has been added successfully")
+
+					});
+			} catch (err) {
+				failureAlert("something went wrong with your request .. check your data and try again");
+			}
 		}
 	}
 	function validateEditRecipeData(id) {
@@ -554,18 +583,22 @@
 		});
 		return response.json(); // parses JSON response into native JavaScript objects
 	}
+	async function updateData(url = '', data = {}) {
+		// Default options are marked with *
+		const response = await fetch(url, {
+			method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+			mode: 'cors', // no-cors, *cors, same-origin
+			cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+			credentials: 'same-origin', // include, *same-origin, omit
+			headers: {
+				'Content-Type': 'application/json'
+				// 'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			redirect: 'follow', // manual, *follow, error
+			referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+			body: JSON.stringify(data) // body data type must match "Content-Type" header
+		});
+		return response.json(); // parses JSON response into native JavaScript objects
+	}
 
-	@* await fetch(@(Model.Configuration["BaseUrl"] + "categories"), );
-		if ((int)res.StatusCode == 200)
-		{
-		//ReqResult = "success";
-		//Msg = "your category has been added successfully";
-		return Redirect("/index?ReqResult=success&Msg=your category has been added successfully");
-		}
-		else
-		{
-		//ReqResult = "failure";
-		//Msg = "something went wrong with your request .. check your data and try again";
-		return Redirect("/index?ReqResult=failure&Msg=something went wrong with your request .. check your data and try again&name=" + Name);
-		}*@
 </script>
