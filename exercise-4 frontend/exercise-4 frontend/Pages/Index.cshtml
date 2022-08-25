@@ -13,7 +13,7 @@
 			<div class="card-body">
 				<h1 class="card-title">Categories</h1>
 				<p class="card-text">from here you can go and see our categories, add, edit and delete.</p>
-				<a class="btn btn-primary" @@click="page=`categories`">Go</a>
+				<a class="btn btn-primary" x-on:click="page=`categories`">Go</a>
 			</div>
 		</div>
 		<div class="card">
@@ -21,7 +21,7 @@
 			<div class="card-body">
 				<h1 class="card-title">Recipes</h1>
 				<p class="card-text">from here you can go and see our recipes, add, edit and delete.</p>
-				<a @@click="page=`recipes`" class="btn btn-primary">Go</a>
+				<a x-on:click="page=`recipes`" class="btn btn-primary">Go</a>
 			</div>
 		</div>
 	</div>
@@ -48,7 +48,7 @@
 								<!-- Button trigger modal -->
 								<button type="button" class="btn btn-primary" data-bs-toggle="modal"
 										x-bind:data-bs-target="'#editModal'+category.id"
-										x-bind:id="'#editButton'+category.id">
+										x-bind:id="'editButton'+category.id">
 									<img class="action" src="~/Images/edit.png" alt="edit" />
 								</button>
 
@@ -199,15 +199,14 @@
 			</div>
 		</div>
 	</div>
-	<template x-if="recipes.length>0">
-		@foreach (var recipe in Model.Recipes)
-		{
+	<template x-for="(recipe,index) in recipes">
+		<section>
 			<!--showing Modal -->
-			<div class="modal fade" id=@("showModal"+recipe.ID) tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal fade" x-bind:id="'showModal'+recipe.id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
-							<h5 class="modal-title">@recipe.Title</h5>
+							<h5 class="modal-title" x-text="recipe.title"></h5>
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body show">
@@ -215,20 +214,19 @@
 								ingredients
 							</div>
 							<div class="ingredients mb-3">
-								@foreach (var ingredient in recipe.Ingredients)
-								{
-									<div>@ingredient</div>
-								}
+								<template x-for="ingredient in recipe.ingredients">
+									<div x-text="ingredient"></div>
+								</template>
+
 							</div>
 							<div class="label">
 								instructions
 							</div>
 							<div class="instructions mb-3">
 								<ol>
-									@foreach (var instruction in recipe.Instructions)
-									{
-										<li> <div>@instruction</div></li>
-									}
+									<template x-for="instruction in recipe.instructions">
+										<li> <div x-text="instruction"></div></li>
+									</template>
 								</ol>
 							</div>
 							<div class="label">
@@ -245,101 +243,77 @@
 				</div>
 			</div>
 			<!-- Editing Modal -->
-			<div class="modal fade" id=@("editModal"+recipe.ID) tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal fade" x-bind:id="'editModal'+recipe.id" ) tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 				<div class="modal-dialog">
 					<div class="modal-content">
-						<form method="post" asp-page-handler="UpdateRecipe" class="needs-validation" novalidate>
+						<form class="needs-validation" novalidate>
 							<div class="modal-header">
 								<h5 class="modal-title">Editing a Recipe</h5>
 								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 							</div>
 							<div class="modal-body edit">
-								<label for=@("name"+recipe.ID) class="form-label ">Title</label>
-								<input type="text" class="form-control mb-3" id=@("title"+recipe.ID) name="title"
-								   value="@(Model.Open=="edit"?Model.Title:recipe.Title)" required>
-								<input type="hidden" class="form-control" name="id" value="@recipe.ID">
+								<label x-bind:for="'name'+recipe.id" class="form-label ">Title</label>
+								<input type="text" class="form-control mb-3" x-bind:id="'title'+recipe.id" name="title"
+									   x-bind:value="recipe.title" required>
+								<input type="hidden" class="form-control" name="id" x-bind:value="recipe.id">
 								<div class="form-floating mb-3">
-									<textarea class="form-control mb-3" placeholder="Leave a comment here" id=@("floatingTextarea"+recipe.ID)
-										  style="height: 100px" name="ingredients" required>
-										@{
-											var index2 = 0;
-											if (Model.Open == "edit")
-												@Model.Ingredients
-											else
-											{
-												@foreach (var ingredient in recipe.Ingredients)
-												{
-													x = index2 > 0 ? "\r\n" : "";
-													x += ingredient;
-													@x
-													index2++;
-												}
+									<textarea class="form-control mb-3" placeholder="Leave a comment here" x-bind:id="'ingredients'+recipe.id"
+											  style="height: 100px" name="ingredients" required x-text="getContent(recipe.ingredients)">
 
-											}
-										}
-																																																																																																																																																																																																																																								</textarea>
-									<label for=@("floatingTextarea"+recipe.ID)>
+									</textarea>
+									<label x-bind:for="'ingredients'+recipe.id">
 										ingredients<span class="weaker">(separated by new lines)</span>
 									</label>
 								</div>
 								<div class="form-floating mb-3">
-									<textarea class="form-control" placeholder="Leave a comment here" id=@("floatingTextarea2"+recipe.ID) style="height: 100px" name="instructions" required>
-										@{
-											index2 = 0;
-											if (Model.Open == "edit")
-												@Model.Instructions
-											else
-												@foreach (var instruction in recipe.Instructions)
-												{
-													x = index2 > 0 ? "\r\n" : "";
-													x += instruction;
-													@x
-													index2++;
-												}
-										}																																																																																			</textarea>
-									<label for=@("floatingTextarea2"+recipe.ID)>
+									<textarea class="form-control" placeholder="Leave a comment here" x-bind:id="'instructions'+recipe.id"
+											  style="height: 100px" name="instructions" required x-text="getContent(recipe.instructions)">
+							</textarea>
+									<label x-bind:for="'instructions'+recipe.id">
 										instructions<span class="weaker">(separated by new lines)</span>
 									</label>
 								</div>
 								<div class="form-floating mb-3">
 									<div class="btn-group mb-3" role="group" aria-label="Basic checkbox toggle button group">
-										@foreach (var category in Model.CategoriesList)
-										{
-											x = "";
-											<input name="categories"
-										   type="checkbox" class="btn-check" id=@("btncheckedit"+recipe.ID+category.ID)
-										   value=@category.ID
-										   autocomplete="off"
-										   @(Model.Open=="edit"?(Model.Categories.Any(c=> c== category.ID) ?"checked":""):(recipe.Categories.Any(c=> c== category.ID) ?"checked":""))>
-											<label class="btn btn-outline-danger"
-										   for=@("btncheckedit"+recipe.ID+category.ID)>
-												@category.Name
-											</label>
-										}
+										<template x-for="category in categoriesList">
+											<section>
+												<input name="categories"
+													   type="checkbox" class="btn-check" x-bind:id="'btncheckedit'+recipe.id+category.id"
+													   x-bind:value="category.id"
+													   autocomplete="off"
+													   x-bind:checked="isChecked(recipe,category)" />
+												@*To Do*@
+												@*@(Model.Open=="edit"?(Model.Categories.Any(c=> c== category.ID) ?"checked":""):(recipe.Categories.Any(c=> c== category.ID) ?"checked":""))>*@
+												<label class="btn btn-outline-danger"
+													   x-bind:for="'btncheckedit'+recipe.id+category.id" x-text="category.name">
+
+												</label>
+											</section>
+										</template>
 									</div>
 								</div>
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-								<button type="submit" class="btn btn-primary" onclick="return validateEditRecipeData(`@recipe.ID`)">Save changes</button>
+								<button type="button" class="btn btn-primary" x-on:click="updateRecipe(recipes,recipe.id,index,categoriesList)">Save changes</button>
 							</div>
 						</form>
 					</div>
 				</div>
 			</div>
 			<!--Delete Modal -->
-			<div class="modal fade" id=@("deleteModal"+recipe.ID)
-			 tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal fade" x-bind:id="'deleteModal'+recipe.id"
+				 tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<form method="post" asp-page-handler="DeleteRecipe">
-							<input type="hidden" class="form-control" name="id" value="@recipe.ID">
+							<input type="hidden" class="form-control" name="id" x-bind:value="recipe.id">
 							<div class="modal-header">
 								<h5 class="modal-title">Deleting a Recipe</h5>
 								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 							</div>
 							<div class="modal-body">
-								Are you sure you want to delete the recipe <span class="delete-category">@recipe.Title</span> ?
+								Are you sure you want to delete the recipe <span class="delete-category" x-text="recipe.title"></span> ?
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -349,9 +323,7 @@
 					</div>
 				</div>
 			</div>
-
-
-		}
+		</section>
 	</template>
 </div>
 @*recipes page*@
@@ -379,15 +351,15 @@
 							<img class="action" src="~/Images/view.png" alt="view" />
 						</button>
 						<!-- Button trigger modal -->
-						<button type="button" class="btn btn-primary" data-bs-toggle="modal" x-bind:data-bs-target="'#editModal'+recipe.ID"
-								x-bind:id="'editButton'+recipe.ID">
+						<button type="button" class="btn btn-primary" data-bs-toggle="modal" x-bind:data-bs-target="'#editModal'+recipe.id"
+								x-bind:id="'editButton'+recipe.id">
 							<img class="action" src="~/Images/edit.png" alt="edit" />
 						</button>
 
 
 						<!-- Button trigger modal -->
 						<button type="button" class="btn btn-danger" data-bs-toggle="modal"
-								x-bind:data-bs-target="'#deleteModal'+recipe.ID" x-bind:id="'deleteButton'+recipe.ID">
+								x-bind:data-bs-target="'#deleteModal'+recipe.id" x-bind:id="'deleteButton'+recipe.id">
 							<img class="action" src="~/Images/bin.png" alt="del" />
 						</button>
 					</div>
@@ -451,18 +423,7 @@
 			}
 		}
 	}
-	if (`@Model.ReqResult` == "success")
-		swal.fire({ title: "Success", text: `@Model.Msg`, "icon": "success" });
-	if (`@Model.ReqResult` == "failure")
-		swal.fire({ title: "Failed", text: `@Model.Msg`, "icon": "error" });
-	if (`@(Model.ID!=new Guid())` && `@Model.Open` == "edit") {
-		var el = document.getElementById(`@("editButton"+ Model.ID)`);
-		setTimeout(() => { el.click(); }, 10);
-	}
-	if (`@(Model.ID!=new Guid())` && `@Model.Open` == "delete") {
-		var el = document.getElementById(`@("deleteButton"+ Model.ID)`);
-		setTimeout(() => { el.click(); }, 10);
-	}
+
 	function successAlert(msg) {
 		swal.fire({ title: "Success", text: msg, "icon": "success" });
 	}
@@ -489,12 +450,11 @@
 		} else {
 			let title = document.getElementById("recipeName").value.trim();
 			let instructions = document.getElementById("instructions").value.trim().split("\n");
-			let ingredients = document.getElementById("recipeName").value.trim().split("\n");
+			let ingredients = document.getElementById("ingredients").value.trim().split("\n");
 			let categoriesToSend = [];
 			for (let i = 0; i < categories.length; i++) {
 				if (document.getElementById("btncheckedit" + categories[i].id).checked) {
 					categoriesToSend.push(categories[i].id);
-					$('#addModal').modal('hide');
 
 				}
 			}
@@ -508,44 +468,71 @@
 					.then((data) => {
 						recipes.push(data);
 						successAlert("your recipe has been added successfully")
-
+						document.getElementById("recipeName").value = "";
+						document.getElementById("instructions").value = "";
+						document.getElementById("ingredients").value = "";
+						for (let i = 0; i < categories.length; i++) {
+							document.getElementById("btncheckedit" + categories[i].id).checked = false;
+						}
+						$('#addModal').modal('hide');
 					});
 			} catch (err) {
 				failureAlert("something went wrong with your request .. check your data and try again");
 			}
 		}
 	}
-	function validateEditRecipeData(id) {
+	async function updateRecipe(recipes, id, index,categories) {
 		if ($("#title" + id).val().trim() == "") {
 			swal.fire({ title: "Recipe Tiltle", text: "Please enter recipe title .. it can't be empty !", "icon": "info" });
 			return false;
 		}
-		if ($("#floatingTextarea" + id).val().trim() == "") {
+		if ($("#ingredients" + id).val().trim() == "") {
 			swal.fire({ title: "Recipe Ingredients", text: "Please enter recipe ingredients .. they can't be empty !", "icon": "info" });
 			return false;
 		}
-		if ($("#floatingTextarea2" + id).val().trim() == "") {
+		if ($("#instructions" + id).val().trim() == "") {
 			swal.fire({ title: "Recipe Instructions", text: "Please enter recipe instructions .. they can't be empty !", "icon": "info" });
 			return false;
 		} else {
-			return true;
+			let title = document.getElementById("title" + id).value.trim();;
+			let ingredients = document.getElementById("ingredients" + id).value.trim().split("\n");;
+			let instructions = document.getElementById("instructions" + id).value.trim().split("\n");;
+			let categoriesToSend = [];
+			for (let i = 0; i < categories.length; i++) {
+				if (document.getElementById("btncheckedit" + id + categories[i].id).checked) {
+					categoriesToSend.push(categories[i].id);
+				}
+			}
+			try {
+				await updateData('@(Model.Configuration["BaseUrl"] + "recipes/" )' + id, {
+					title: title,
+					ingredients: ingredients,
+					instructions: instructions,
+					categories: categoriesToSend
+				}).then((data) => {
+					recipes[index] = data;
+                    successAlert("the recipe has been updated successfully");
+					$('#editModal' + id).modal('hide');
+				});
+			} catch (err) {
+				failureAlert("something went wrong with your request .. review your data and try again");
+			}
 		}
 	}
-	if (`@Model.ReqResult` == "success")
-		swal.fire({ title: "Success", text: `@Model.Msg`, "icon": "success" });
-	if (`@Model.ReqResult` == "failure")
-		swal.fire({ title: "Failed", text: `@Model.Msg`, "icon": "error" });
-	if (`@Model.Open` == "add" && `@(Model.ID!=new Guid())`) {
-		var el = document.getElementById("#addButton");
-		setTimeout(() => { el.click(); }, 10);
+	function getContent(list) {
+		let x = "";
+		for (let i = 0; i < list.length; i++) {
+			x += i > 0 ? "\r\n" : "";
+			x += list[i];
+		}
+		return x;
 	}
-	if (`@(Model.ID!=new Guid())` && `@Model.Open` == "edit") {
-		var el = document.getElementById(`@("editButton"+ Model.ID)`);
-		setTimeout(() => { el.click(); }, 10);
-	}
-	if (`@(Model.ID!=new Guid())` && `@Model.Open` == "delete") {
-		var el = document.getElementById(`@("deleteButton"+ Model.ID)`);
-		setTimeout(() => { el.click(); }, 10);
+	function isChecked(recipe, category) {
+		for (let i = 0; i < recipe.categories.length; i++) {
+			if (recipe.categories[i] == category.id)
+				return true;
+		}
+		return false;
 	}
 </script>
 <script type="text/javascript">
