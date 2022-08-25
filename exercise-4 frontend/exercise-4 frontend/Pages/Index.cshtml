@@ -233,8 +233,8 @@
 								categories
 							</div>
 							<div class="categories mb-3">
-								<template x-for="category in categoriesList">
-									<div class="category" x-text="categoriesNamesMap[category.id]"></div>
+								<template x-for="category in recipe.categories">
+									<div class="category" x-text="categoriesNamesMap[category]"></div>
 								</template>
 
 							</div>
@@ -306,7 +306,7 @@
 				 tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 				<div class="modal-dialog">
 					<div class="modal-content">
-						<form method="post" asp-page-handler="DeleteRecipe">
+						<form>
 							<input type="hidden" class="form-control" name="id" x-bind:value="recipe.id">
 							<div class="modal-header">
 								<h5 class="modal-title">Deleting a Recipe</h5>
@@ -317,7 +317,10 @@
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-								<button type="submit" class="btn btn-danger">Yes, Delete</button>
+								<button type="button" class="btn btn-danger"
+										x-on:click="deleteRecipe(recipes,recipe.id,index)">
+									Yes, Delete
+								</button>
 							</div>
 						</form>
 					</div>
@@ -371,17 +374,17 @@
 </div>
 <script type="text/javascript">
 	async function createCategory(categories, map) {
-		if ($("#name").value.trim() == "") {
+		if ($("#name").val().trim() == "") {
 			swal.fire({ title: "Category Name", text: "Please enter category name .. it can't be empty !", "icon": "info" });
 		} else {
-			let name = document.getElementById("name").value;
+			let name = document.getElementById("name").value.trim();
 			try {
 				await postData('@(Model.Configuration["BaseUrl"] + "categories")', { name: name })
 					.then((data) => {
 						categories.push(data);
 						map[data.id] = data.name;
 						successAlert("your category has been added successfully")
-
+						document.getElementById("name").value = "";
 					});
 			} catch (err) {
 				failureAlert("something went wrong with your request .. check your data and try again");
@@ -389,8 +392,6 @@
 		}
 	}
 	async function deleteCategory(categories, map, id, index) {
-
-		let name = document.getElementById("name").value;
 		try {
 			await deleteData('@(Model.Configuration["BaseUrl"] + "categories/" )' + id)
 				.then((data) => {
@@ -409,7 +410,7 @@
 			swal.fire({ title: "Category Name", text: "Please enter category name .. it can't be empty !", "icon": "info" });
 			return false;
 		} else {
-			let name = document.getElementById("name" + id).value;
+			let name = document.getElementById("name" + id).value.trim();
 			try {
 				await updateData('@(Model.Configuration["BaseUrl"] + "categories/" )' + id, { name: name })
 					.then((data) => {
@@ -481,7 +482,7 @@
 			}
 		}
 	}
-	async function updateRecipe(recipes, id, index,categories) {
+	async function updateRecipe(recipes, id, index, categories) {
 		if ($("#title" + id).val().trim() == "") {
 			swal.fire({ title: "Recipe Tiltle", text: "Please enter recipe title .. it can't be empty !", "icon": "info" });
 			return false;
@@ -511,13 +512,27 @@
 					categories: categoriesToSend
 				}).then((data) => {
 					recipes[index] = data;
-                    successAlert("the recipe has been updated successfully");
+					successAlert("the recipe has been updated successfully");
 					$('#editModal' + id).modal('hide');
 				});
 			} catch (err) {
 				failureAlert("something went wrong with your request .. review your data and try again");
 			}
 		}
+	}
+
+	async function deleteRecipe(recipes, id, index) {
+		try {
+			await deleteData('@(Model.Configuration["BaseUrl"] + "recipes/" )' + id)
+				.then((data) => {
+					recipes.splice(index, 1); // 2nd parameter means remove one item only
+					successAlert("the recipe has been deleted successfully")
+					$('#deleteModal' + id).modal('hide');
+				});
+		} catch (err) {
+			failureAlert("something went wrong with your request .. you can retry after some seconds");
+		}
+		return false;
 	}
 	function getContent(list) {
 		let x = "";

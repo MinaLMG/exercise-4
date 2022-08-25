@@ -158,6 +158,7 @@ public class Pages
             return Results.BadRequest("name must be a non-empty field");
             //at client: responseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult()
         }
+        c.Name = c.Name.Trim();
         switch (action)
         {
             case "add":
