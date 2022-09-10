@@ -6,7 +6,8 @@
 }
 @*
 @**** home page *****@
-<div class="page-body" x-show="page==`home`">
+<div class="page-body" x-show="page==`home`" x-transition:enter.duration.300ms
+	 x-transition:leave.duration.0ms>
 	<div class="index-body">
 		<div class="card ">
 			<img src="~/Images/categories2.jpg" class="card-img-top" alt="...">
@@ -27,7 +28,8 @@
 	</div>
 </div>
 @**** categories page *****@
-<div class="page-body categories" x-show="page==`categories`">
+<div class="page-body categories" x-show="page==`categories`" x-transition:enter.duration.300ms
+	 x-transition:leave.duration.0ms>
 	<div class="page-body-elements">
 		<h1> Categories</h1>
 		<template x-if="categoriesList.length > 0">
@@ -104,7 +106,7 @@
 												</div>
 												<div class="modal-footer">
 													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-													<button type="button" class="btn btn-danger" x-on:click="deleteCategory(categoriesList,categoriesNamesMap,category.id,index)">Yes, Delete</button>
+													<button type="button" class="btn btn-danger" x-on:click="await deleteCategory(categoriesList,categoriesNamesMap,category.id,index,recipes)">Yes, Delete</button>
 												</div>
 											</form>
 										</div>
@@ -130,7 +132,8 @@
 	</div>
 </div>
 @**** recipes page *****@
-<div class="modals" x-show="page==`recipes`">
+<div class="modals" x-show="page==`recipes`" x-transition:enter.duration.300ms
+	 x-transition:leave.duration.0ms>
 	<!-- Adding Modal -->
 	<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
@@ -330,7 +333,8 @@
 	</template>
 </div>
 @*recipes page*@
-<div class="page-body recipes" x-show="page==`recipes`">
+<div class="page-body recipes" x-show="page==`recipes`" x-transition:enter.duration.300ms
+	 x-transition:leave.duration.0ms>
 	<div class="page-body-elements">
 		<div class="recipes-header-container">
 			<h1> Recipes </h1>
@@ -391,19 +395,20 @@
 			}
 		}
 	}
-	async function deleteCategory(categories, map, id, index) {
+	async function deleteCategory(categories, map, id, index, recipesList) {
 		try {
-			await deleteData('@(Model.Configuration["BaseUrl"] + "categories/" )' + id)
-				.then((data) => {
-					categories.splice(index, 1); // 2nd parameter means remove one item only
-					delete map[data.id];
-					successAlert("the category has been deleted successfully")
-					$('#deleteModal' + id).modal('hide');
-				});
+            data = await deleteData('@(Model.Configuration["BaseUrl"] + "categories/" )' + id);
+			categories.splice(index, 1); // 2nd parameter means remove one item only
+			delete map[data.id];
+			successAlert("the category has been deleted successfully");
+			$('#deleteModal' + id).modal('hide');
+			let x = await (await fetch('@(@Model.Configuration["BaseUrl"]+"recipes")')).json();
+            for (let i = 0; i < x.length;i++){
+                recipesList[i] = x[i];
+			}
 		} catch (err) {
 			failureAlert("something went wrong with your request .. you can retry after some seconds");
 		}
-		return false;
 	}
 	async function updateCategory(categories, map, id, index) {
 		if ($("#name" + id).val().trim() == "") {
